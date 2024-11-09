@@ -1,0 +1,58 @@
+@import "../../utils/nullfile.module.css";
+
+.task__container {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    border-bottom: 1px solid rgb(61, 61, 61);
+    padding: 15px 5px;
+}
+
+.task__container:hover {
+    background-color: rgb(61, 61, 61);
+}
+
+.task__column {
+    overflow: hidden;
+    font-size: 20px;
+    color: rgb(245, 245, 245);
+    padding: 5px 10px;
+}
+
+.selector {
+    border: 1px solid white;
+    border-radius: 15px;
+    padding: 5px 30px 5px 10px;
+}
+
+.selector::after {
+    position: absolute;
+    content: "▼";
+    padding: 0 5px;
+}
+
+.title {
+    display: inline-block;
+    width: 30%;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
+
+.high__priority {
+    border-color: rgb(46, 25, 12);
+    background-color: rgb(103, 55, 26);
+    color: rgb(240, 114, 44);
+}
+
+.qa_testing_status {
+    border: 2px solid rgb(39, 62, 97);
+    background-color: rgb(40, 69, 109);
+    color: rgb(135, 194, 233);
+}
+
+.small_time {
+    border: 2px solid rgb(14, 44, 22);
+    background-color: rgb(25, 80, 40);
+    color: rgb(66, 192, 146);
+}
