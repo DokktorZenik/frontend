@@ -1,32 +1,50 @@
 import React, { useState } from 'react';
+import styles from './dropdown.module.css'
 
-const Dropdown = () => {
+const Dropdown = ({array, startValue, fieldName, callback}) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState('Выберите опцию');
+    const [selectedOption, setSelectedOption] = useState(startValue.content);
+    const [selectedOptionStyle, setSelectedStyle] = useState(startValue.style);
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
 
     const handleOptionClick = (option) => {
-        setSelectedOption(option);
+        setSelectedOption(option.content);
+        setSelectedStyle(option.style);
+        callback(fieldName, option.content);
         setIsOpen(false);
     };
 
+    const parseStyleString = (styleString) => {
+        return styleString.split(';').reduce((acc, style) => {
+            const [key, value] = style.split(':').map(item => item.trim());
+            if (key && value) {
+
+                const camelCaseKey = key.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+                acc[camelCaseKey] = value;
+            }
+            return acc;
+        }, {});
+    }
+
+
     return (
-        <div className="dropdown">
-            <button className="dropdown-toggle" onClick={toggleDropdown}>
+        <div className={styles.dropdown}>
+            <button className={styles.dropdown__toggle} onClick={toggleDropdown} style={parseStyleString(selectedOptionStyle)}>
                 {selectedOption}
             </button>
             {isOpen && (
-                <div className="dropdown-menu">
-                    {['Опция 1', 'Опция 2', 'Опция 3'].map((option, index) => (
+                <div className={styles.dropdown__menu}>
+                    {array.map((option, index) => (
                         <div
                             key={index}
                             onClick={() => handleOptionClick(option)}
-                            className={`dropdown-item ${selectedOption === option ? 'selected' : ''}`}
+                            className={[styles.dropdown__item, selectedOption === option.content ? 'selected' : ''].join(' ')}
+                            style={parseStyleString(option.style)}
                         >
-                            {option}
+                            {option.content}
                         </div>
                     ))}
                 </div>

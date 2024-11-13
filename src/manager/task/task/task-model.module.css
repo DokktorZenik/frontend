@@ -6,6 +6,7 @@
     justify-content: space-around;
     border-bottom: 1px solid rgb(61, 61, 61);
     padding: 15px 5px;
+    position: relative;
 }
 
 .task__container:hover {
@@ -13,22 +14,24 @@
 }
 
 .task__column {
-    overflow: hidden;
-    font-size: 20px;
+    font-size: 16px;
     color: rgb(245, 245, 245);
-    padding: 5px 10px;
+    width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .selector {
     border: 1px solid white;
-    border-radius: 15px;
-    padding: 5px 30px 5px 10px;
+    border-radius: 20px;
+    position: relative;
 }
 
 .selector::after {
     position: absolute;
     content: "▼";
-    padding: 0 5px;
+    right: 15px;
 }
 
 .title {
@@ -37,18 +40,6 @@
     white-space: nowrap;
     overflow: hidden !important;
     text-overflow: ellipsis;
-}
-
-.high__priority {
-    border-color: rgb(46, 25, 12);
-    background-color: rgb(103, 55, 26);
-    color: rgb(240, 114, 44);
-}
-
-.qa_testing_status {
-    border: 2px solid rgb(39, 62, 97);
-    background-color: rgb(40, 69, 109);
-    color: rgb(135, 194, 233);
 }
 
 .small_time {
