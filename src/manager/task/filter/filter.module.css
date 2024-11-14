@@ -13,8 +13,35 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 10px;
+}
+
+.settings__item_reset {
+    cursor: pointer;
+}
+
+.settings__item_reset:active {
+    transform: rotate(360deg);
+    transition-duration: 0.1s;
 }
 
 .settings__item_null {
     color: white;
+}
+
+.settings__reset {
+    cursor: pointer;
+    position: relative;
+    border: 2px solid rgb(60, 60, 60);
+    border-radius: 20px;
+    width: 120px;
+    padding: 10px;
+    box-shadow: 0 5px 0 rgb(60, 60, 60);
+    top: -5px;
+}
+
+.settings__reset:active {
+    transition-duration: 0.2s;
+    top: -3px;
+    box-shadow: 0 2px 0 rgb(60, 60, 60);
 }

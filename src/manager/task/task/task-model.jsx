@@ -1,10 +1,10 @@
 import styles from './task-model.module.css';
 import Dropdown from "../dropdown/dropdown";
 
-const taskModel = ({priorities, statuses, estimates}) => {
+const TaskModel = ({priorities, statuses, estimates, clicked}) => {
     return (
-        <div className={styles.task__container}>
-            <div className={[styles.task__column, styles.title].join(" ")}>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab ad consequuntur debitis deleniti eaque excepturi itaque maxime repudiandae sed voluptas.</div>
+        <div className={styles.task__container} onClick={() => clicked(1)}>
+            <div className={[styles.task__column, styles.title].join(" ")}><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab ad consequuntur debitis deleniti eaque excepturi itaque maxime repudiandae sed voluptas.</p></div>
             <div className={[styles.task__column].join(" ")}><Dropdown array={priorities} startValue={priorities[0]} fieldName={""} callback={() => {}}/></div>
             <div className={[styles.task__column].join(" ")}><Dropdown array={statuses} startValue={statuses[0]} fieldName={""} callback={() => {}}/></div>
             <div className={[styles.task__column].join(" ")}>Korey</div>
@@ -14,4 +14,4 @@ const taskModel = ({priorities, statuses, estimates}) => {
     );
 }
 
-export default taskModel;
+export default TaskModel;

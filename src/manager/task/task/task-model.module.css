@@ -34,9 +34,9 @@
     right: 15px;
 }
 
-.title {
-    display: inline-block;
-    width: 30%;
+.title > p {
+    display: block;
+    width: 100%;
     white-space: nowrap;
     overflow: hidden !important;
     text-overflow: ellipsis;

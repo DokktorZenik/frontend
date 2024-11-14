@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './dropdown.module.css'
 
 const Dropdown = ({array, startValue, fieldName, callback}) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(startValue.content);
-    const [selectedOptionStyle, setSelectedStyle] = useState(startValue.style);
+    const [selectedOption, setSelectedOption] = useState(startValue !== null ? startValue.content : "Choose");
+    const [selectedOptionStyle, setSelectedStyle] = useState(startValue !== null ? startValue.style : "");
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -29,6 +29,10 @@ const Dropdown = ({array, startValue, fieldName, callback}) => {
         }, {});
     }
 
+    useEffect(() => {
+            setSelectedOption(startValue !== null ? startValue.content : "Choose");
+            setSelectedStyle(startValue !== null ? startValue.style : "");
+    }, [startValue])
 
     return (
         <div className={styles.dropdown}>
