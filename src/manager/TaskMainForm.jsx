@@ -1,7 +1,7 @@
-import styles from './MainForm.module.css'
+import styles from './TaskMainForm.module.css'
 import MainContainer from "./task/container/main-container";
 
-const mainForm = () => {
+const taskMainForm = () => {
     return (
         <div className={styles.workplace}>
             <MainContainer/>
@@ -9,4 +9,4 @@ const mainForm = () => {
     );
 }
 
-export default mainForm
+export default taskMainForm
