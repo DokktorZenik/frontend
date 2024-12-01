@@ -3,12 +3,12 @@ import TaskModel from "../task/task-model";
 import Filter from "../filter/filter";
 import {useState} from "react";
 import Modal from "../modal/modal";
-
+import style from "./main-container.module.css";
+import CreateModal from "../../entities/create/createModal";
 const MainContainer = () => {
 
     const [filter, setFilter] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     const openModal = (recordId) => {
         setIsModalOpen(true);
     }
@@ -95,12 +95,23 @@ const MainContainer = () => {
                 <div className={styles.header}>
                     Tasks from Project
                 </div>
-                <Filter priorities={priorities} statuses={statuses} assignees={assignees} filter={filter} setFilter={setFilter} />
+                <div className={styles.settings}>
+                    <div className={style.create__wrapper} onClick={() => {
+                        setIsModalOpen(true)
+                    }}>
+                        <div className={[style.create_button].join(" ")}>
+                            <p>Create Project</p>
+                        </div>
+                    </div>
+                    <Filter priorities={priorities} statuses={statuses} assignees={assignees} filter={filter}
+                            setFilter={setFilter} />
+                </div>
                 <div className={styles.tasks__place}>
-                    {isModalOpen ? <Modal priorities={priorities} statuses={statuses} estimates={estimates} close={() => setIsModalOpen(false)}/> : null}
-                    <TaskModel priorities={priorities} statuses={statuses} estimates={estimates} clicked={openModal} />
-                    <TaskModel priorities={priorities} statuses={statuses} estimates={estimates} clicked={openModal} />
-                    <TaskModel priorities={priorities} statuses={statuses} estimates={estimates} clicked={openModal} />
+                    {isModalOpen ? <Modal priorities={priorities} statuses={statuses} estimates={estimates}
+                                          close={() => setIsModalOpen(false)}/> : null}
+                    <TaskModel priorities={priorities} statuses={statuses} estimates={estimates} clicked={openModal}/>
+                    <TaskModel priorities={priorities} statuses={statuses} estimates={estimates} clicked={openModal}/>
+                    <TaskModel priorities={priorities} statuses={statuses} estimates={estimates} clicked={openModal}/>
                 </div>
             </div>
         </div>

@@ -48,3 +48,46 @@
     flex-direction: column;
     gap: 10px;
 }
+
+.settings {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgb(60, 60, 60);
+    padding: 10px;
+}
+
+.create__wrapper {
+    display: flex;
+    margin: 5px;
+}
+
+.create_button {
+    display: flex;
+    font-size: 20px;
+    border: 2px solid rgb(47, 116, 179);
+    padding: 10px;
+    background-color: rgb(15, 52, 85);
+    border-radius: 20px;
+    position: relative;
+    top: 0;
+    left: 0;
+    box-shadow: 0 5px 0 rgb(47, 116, 179);
+    cursor: pointer;
+}
+
+.create_button:active {
+    top: 2px;
+    box-shadow: 0 3px 0 rgb(47, 116, 179);
+}
+
+.create_button > p {
+    font-weight: bold;
+    color: rgb(50, 121, 182);
+}
+
+.create_button:before {
+    content: "+";
+    font-weight: bold;
+    margin-right: 10px;
+    color: rgb(50, 121, 182);
+}

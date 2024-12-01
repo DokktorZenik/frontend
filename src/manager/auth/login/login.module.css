@@ -7,7 +7,7 @@
     align-items: center;
 }
 
-.items_container {
+.container {
     width: 90%;
     height: 90vh;
     display: flex;
