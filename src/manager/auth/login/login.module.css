@@ -94,3 +94,26 @@
     top: 3px;
     box-shadow: 0 2px 0 0 rgb(60, 60, 60);
 }
+
+.oauth_buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.button__google {
+    background-color: #db4437;
+    color: white;
+}
+
+.button__facebook {
+    background-color: #4267b2;
+    color: white;
+}
+
+.button__google:hover,
+.button__facebook:hover {
+    opacity: 0.9;
+}

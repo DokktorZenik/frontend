@@ -19,6 +19,10 @@ const Login = () => {
                                 <div className={[style.button, style.button__register].join(" ")}>REGISTER</div>
                                 <div className={[style.button, style.button__login].join(" ")}>LOGIN</div>
                             </div>
+                            <div className={style.oauth_buttons}>
+                                <div className={[style.button, style.button__google].join(" ")}>Login with Google</div>
+                                <div className={[style.button, style.button__facebook].join(" ")}>Login with Facebook</div>
+                            </div>
                         </div>
                     </div>
                 </div>

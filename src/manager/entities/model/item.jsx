@@ -5,7 +5,7 @@ const Item = () => {
         <div className={style.wrapper}>
             <div className={style.container}>
                 <div className={style.title}>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequatur, veniam.</p>
+                    <p>Lorem </p>
                 </div>
                 <div className={style.buttons}>
                     <div className={style.buttons__delete}>DELETE</div>
