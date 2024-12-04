@@ -5,9 +5,6 @@ import CreateModal from "../../entities/create/createModal";
 
 const Filter = ({priorities, statuses, assignees, filter, setFilter}) => {
 
-    const [isCreateModalActive, setIsCreateModalActive] = useState(false);
-
-    const [title, setTitle] = useState("");
 
     const setField = (fieldName, value) => {
         console.log({...filter, [fieldName]: value})
@@ -41,38 +38,26 @@ const Filter = ({priorities, statuses, assignees, filter, setFilter}) => {
         assignee: findField(assignees, filter["assignee"]),
     });
 
+
+
     return (
         <div className={styles.settings}>
-            {isCreateModalActive
-                ? <CreateModal title={title} callback={() => console.log("ARTEM")}
-                               closeModal={() => setIsCreateModalActive(false)}/>
-                : null
-            }
             <div className={styles.settings__item}>
                 <Dropdown array={priorities} startValue={displayValues["priority"]} fieldName={"priority"}
-                          callback={setField} createItem={() => {
-                    setTitle("priority")
-                    setIsCreateModalActive(true)
-                }
-                }/>
+                          callback={setField}
+                />
                 <div className={styles.settings__item_reset} onClick={() => removeField("priority")}><p>✕</p></div>
             </div>
             <div className={styles.settings__item}>
                 <Dropdown array={statuses} startValue={displayValues["status"]} fieldName={"status"}
-                          callback={setField} createItem={() => {
-                    setTitle("status")
-                    setIsCreateModalActive(true)
-                }
-                }/>
+                          callback={setField}
+                />
                 <div className={styles.settings__item_reset} onClick={() => removeField("status")}><p>✕</p></div>
             </div>
             <div className={[styles.settings__item, styles.settings__item_null].join(" ")}>
                 <Dropdown array={assignees} startValue={displayValues["assignee"]} fieldName={"assignee"}
-                          callback={setField} createItem={() => {
-                    setTitle("assignee")
-                    setIsCreateModalActive(true)
-                }
-                }/>
+                          callback={setField}
+                />
                 <div className={styles.settings__item_reset} onClick={() => removeField("assignee")}><p>✕</p></div>
             </div>
             <div className={[styles.settings__item, styles.settings__reset].join(" ")} onClick={() => setFilter({})}>
