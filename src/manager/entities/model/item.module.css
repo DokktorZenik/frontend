@@ -49,3 +49,6 @@
     top: 3px;
     box-shadow: 0 2px 0 0 rgb(60, 60, 60);
 }
+.selected{
+    background-color: rgba(47, 116, 179,40%) !important;
+}

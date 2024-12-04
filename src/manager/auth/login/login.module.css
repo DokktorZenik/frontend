@@ -49,10 +49,14 @@
     width: 100%;
 }
 
+.username {
+    width: 100%;
+}
+
 .password {
     width: 100%;
 }
-.email > input, .password > input {
+.email > input, .password > input, .username > input {
     width: 100%;
     font-size: 24px;
     background-color: transparent;

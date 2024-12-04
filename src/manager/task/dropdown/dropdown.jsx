@@ -1,19 +1,24 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './dropdown.module.css'
 
-const Dropdown = ({array, startValue, fieldName, callback, createItem}) => {
+const Dropdown = ({addFunc, array, startValue, fieldName, callback}) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState(startValue !== null ? startValue.content : "Choose");
-    const [selectedOptionStyle, setSelectedStyle] = useState(startValue !== null ? startValue.style : "");
+    const [selectedOption, setSelectedOption] = useState(startValue !== null ? startValue.content.title : "Choose");
+    const [selectedOptionStyle, setSelectedStyle] = useState(startValue !== null ? startValue.content.color : "");
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
 
     const handleOptionClick = (option) => {
-        setSelectedOption(option.content);
-        setSelectedStyle(option.style);
-        callback(fieldName, option.content);
+        setSelectedOption(option.content.title);
+        setSelectedStyle(option.content.color);
+
+        if(callback.length === 1){
+            callback(option.content.title);
+        } else if (callback.length === 2){
+            callback(fieldName, option.content.color);
+        }
         setIsOpen(false);
     };
 
@@ -30,8 +35,8 @@ const Dropdown = ({array, startValue, fieldName, callback, createItem}) => {
     }
 
     useEffect(() => {
-            setSelectedOption(startValue !== null ? startValue.content : "Choose");
-            setSelectedStyle(startValue !== null ? startValue.style : "");
+            setSelectedOption(startValue !== null ? startValue.content.title : "Choose");
+            setSelectedStyle(startValue !== null ? startValue.content.color : "");
     }, [startValue])
 
     const dropdownRef = useRef(null);
@@ -50,26 +55,29 @@ const Dropdown = ({array, startValue, fieldName, callback, createItem}) => {
     }, []);
 
     return (
-        <div className={styles.dropdown} ref={dropdownRef}>
+        <div className={styles.dropdown} ref={dropdownRef} onClick={(e)=>e.stopPropagation()}>
             <button className={styles.dropdown__toggle} onClick={toggleDropdown} style={parseStyleString(selectedOptionStyle)}>
                 {selectedOption}
             </button>
             {isOpen && (
                 <div className={styles.dropdown__menu}>
                     <div className={styles.dropdown__item} onClick={() => {
-                        createItem()
                         setIsOpen(false);
+                        addFunc()
                     }}>+</div>
-                    {array.map((option, index) => (
-                        <div
+                    {array.map((option, index) => {
+                        return (
+
+                        <div style={parseStyleString(option.content.color)}
                             key={index}
                             onClick={() => handleOptionClick(option)}
-                            className={[styles.dropdown__item, selectedOption === option.content ? 'selected' : ''].join(' ')}
-                            style={parseStyleString(option.style)}
+                            className={[styles.dropdown__item, selectedOption === option.content.color ? 'selected' : ''].join(' ')}
+
+
                         >
-                            {option.content}
+                            {option.content.title}
                         </div>
-                    ))}
+                    )})}
                 </div>
             )}
         </div>
