@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './dropdown.module.css'
+import {options} from "axios";
 
 const Dropdown = ({addFunc, array, startValue, fieldName, callback}) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,13 @@ const Dropdown = ({addFunc, array, startValue, fieldName, callback}) => {
         if(callback.length === 1){
             callback(option.content.title);
         } else if (callback.length === 2){
-            callback(fieldName, option.content.color);
+            if(fieldName === "assignee"){
+                option.content.title = option.id
+                console.log("ASIGNEE")
+                callback(fieldName + "_id", option.content);
+                return;
+            }
+            callback(fieldName, option.content);
         }
         setIsOpen(false);
     };

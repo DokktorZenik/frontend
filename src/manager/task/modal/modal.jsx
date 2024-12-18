@@ -1,14 +1,52 @@
 import styles from './modal.module.css';
 import Dropdown from "../dropdown/dropdown";
 import {useEffect, useState} from "react";
-import login from "../../auth/login/login";
 import axios from "axios";
+import {GATEWAY_ROUTE} from "../../../urls";
 
 const Modal = ({task, users, chooseCallback, close, priorities, statuses, estimates}) => {
     const [localTask, setLocalTask] = useState(task)
 
     function createTask() {
-        axios.post(`http://localhost:8082/v1/tasks/${task.id}`, {})
+        let org = JSON.parse(localStorage.getItem("org"));
+        let proj = JSON.parse(localStorage.getItem("proj"));
+        console.log("Creating", localTask);
+        axios.post(`${GATEWAY_ROUTE}/organizations/${org.name}/projects/${proj.name}/tasks`, {
+            created_by: localStorage.getItem("userid"),
+            tasks: [localTask],
+        }).then(res => {
+            console.log(res.data)
+            close()
+        })
+    }
+
+    function deleteTask() {
+        let org = JSON.parse(localStorage.getItem("org"));
+        let proj = JSON.parse(localStorage.getItem("proj"));
+        setLocalTask({...localTask, orgId: org.id});
+        setLocalTask({...localTask, projectId: proj.id});
+        axios.delete(`${GATEWAY_ROUTE}/organizations/${org.name}/projects/${proj.name}/tasks/${task.id}`)
+            .then(res => {
+                close()
+            }).catch(
+                err => {
+                    console.log(err);
+                }
+        )
+
+    }
+
+    function updateTask() {
+        let org = JSON.parse(localStorage.getItem("org"));
+        let proj = JSON.parse(localStorage.getItem("proj"));
+        console.log("Updating", localTask)
+        axios.put(`${GATEWAY_ROUTE}/organizations/${org.name}/projects/${proj.name}/tasks`,{
+            created_by: localStorage.getItem("userid"),
+            tasks: [localTask],
+        })
+            .then(res => {
+                close()
+            })
     }
 
     return (<div className={styles.wrapper} onClick={(e) => close()}>
@@ -27,7 +65,7 @@ const Modal = ({task, users, chooseCallback, close, priorities, statuses, estima
                             }}>
                                 {users.map(user => {
                                     return (<option key={user.id}
-                                                    value={user.id}>{user.username}</option>)
+                                                    value={user.id}>{user.content.title}</option>)
                                 })}
                             </select>
                         </div>
@@ -38,7 +76,7 @@ const Modal = ({task, users, chooseCallback, close, priorities, statuses, estima
                             }}>
                                 {users.map(user => {
                                     return (<option key={user.id}
-                                                    value={user.id}>{user.username}</option>)
+                                                    value={user.id}>{user.content.title}</option>)
                                 })}
                             </select></div>
                         <div className={[].join(" ")}>Start day:
@@ -58,7 +96,7 @@ const Modal = ({task, users, chooseCallback, close, priorities, statuses, estima
                             <input className={styles.select} type={"range"} min={0} max={100} step={1}
                                    defaultValue={task.progress}
                                    onChange={(e) => {
-                                       setLocalTask({...localTask, progress: e.target.value})
+                                       setLocalTask({...localTask, progress: parseInt(e.target.value)})
 
                                    }}/>
                             <div className={[].join(" ")}>{localTask.progress}</div>
@@ -90,23 +128,19 @@ const Modal = ({task, users, chooseCallback, close, priorities, statuses, estima
                 </div>
                 {task.id ?
                     <div className={styles.panel}>
-                        <div className={[styles.button, styles.button__delete].join(" ")}>Delete</div>
+                        <div className={[styles.button, styles.button__delete].join(" ")} onClick={()=> deleteTask()}>Delete</div>
                         <div className={[styles.button, styles.button__update].join(" ")} onClick={() => {
-                            delete localTask.assignee;
-                            delete localTask.creator;
                             console.log(JSON.stringify(localTask));
                             setLocalTask({...localTask, timestamp: Date.now()});
-                            // task = localTask
+                            updateTask()
+                            task = localTask
                         }}>Update
                         </div>
                     </div> :
                     <div className={styles.panel}>
                         <div className={[styles.button, styles.button__update].join(" ")} onClick={() => {
-                            delete localTask.assignee;
-                            delete localTask.creator;
-                            console.log(JSON.stringify(localTask));
                             setLocalTask({...localTask, timestamp: Date.now()});
-                            // task = localTask
+                            createTask(localTask)
                         }}>Create
                         </div>
                     </div>

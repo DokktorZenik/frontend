@@ -3,8 +3,8 @@ import Item from "./model/item";
 import CreateModal from "./create/createModal";
 import {useEffect, useState, useRef} from "react";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
 import {useNavigate} from "react-router-dom";
+import {GATEWAY_ROUTE} from "../../urls";
 
 
 const Metadata = () => {
@@ -15,6 +15,9 @@ const Metadata = () => {
 
     const [orgname, setOrgname] = useState("");
     const [projid, setProjid] = useState("");
+
+    const [orgEmail, setOrgEmail] = useState()
+    const [projEmail, setProjEmail] = useState()
 
     const listRef = useRef([]);
     const listSetterRef = useRef(null);
@@ -27,21 +30,23 @@ const Metadata = () => {
         }
         localStorage.removeItem("org");
         localStorage.removeItem("proj");
-        axios.get("http://localhost:8080/v1/organizations").then((response) => {
+        let userId = JSON.parse(localStorage.getItem("userid"));
+        axios.get(`${GATEWAY_ROUTE}/organizations/user/${userId}`).then((response) => {
             setOrganizations(response.data._embedded.responses);
         });
     }, []);
 
     const openModal = (data, setter, title) => {
-        listRef.current = data; // Store data in useRef
-        listSetterRef.current = setter; // Store setter in useRef
+        listRef.current = data;
+        listSetterRef.current = setter;
         setTitle(title);
         setIsModalActive(true);
     };
 
     function getProjects(){
         let org = JSON.parse(localStorage.getItem("org"));
-        axios.get("http://localhost:8080/v1/organizations/"+ org.name + "/projects")
+        let userId = JSON.parse(localStorage.getItem("userid"));
+        axios.get(`${GATEWAY_ROUTE}/organizations/${org.name}/projects/user/${userId}`)
             .then((response) => {
 
                 setProjects(response.data._embedded.responses);
@@ -52,6 +57,76 @@ const Metadata = () => {
         if(projid && orgname){
             navigate(`/tasks`);
         }
+    }
+
+    const inviteToOrg = () => {
+        let token = localStorage.getItem("token")
+        let org = JSON.parse(localStorage.getItem("org"));
+        const params = new URLSearchParams();
+        params.set("email", orgEmail);
+        params.set("organizationId", org.id);
+
+        axios.post(
+            `${GATEWAY_ROUTE}/invitations/organization/send`,
+            params,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        )
+            .then(response => {
+                console.log("Invitation sent successfully:", response.data);
+            })
+            .catch(error => {
+                console.error("Error sending invitation:", error);
+            });
+
+    }
+
+    const inviteToProject = () => {
+        let token = localStorage.getItem("token")
+        let org = JSON.parse(localStorage.getItem("org"));
+        let proj = JSON.parse(localStorage.getItem("proj"));
+        const params = new URLSearchParams();
+        params.set("email", projEmail);
+        params.set("organizationId", org.id);
+        params.set("projectId", proj.id);
+
+        axios.post(
+            `${GATEWAY_ROUTE}/invitations/project/send`,
+            params,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        )
+            .then(response => {
+                console.log("Invitation sent successfully:", response.data);
+            })
+            .catch(error => {
+                console.error("Error sending invitation:", error);
+            });
+
+    }
+    const deleteProject = (name) => {
+        let org = JSON.parse(localStorage.getItem("org"));
+        axios.delete(`${GATEWAY_ROUTE}/organizations/${org.name}/projects/${name}`).then((response) => {
+            console.log(response);
+        }).catch(error => {
+            console.error("Error deleteing project:", error);
+        })
+
+    }
+
+    const deleteOrganization = (name) => {
+        axios.delete(`${GATEWAY_ROUTE}/organizations/${name}`).then((response) => {
+            console.log(response);
+        }).catch(error => {
+            console.error("Error deleteing organization:", error);
+        })
+
     }
 
     return (
@@ -72,6 +147,16 @@ const Metadata = () => {
                     </div>
                     <div className={style.choose}>
                         <div className={[style.orgs, style.items_container].join(" ")}>
+
+                            <div className={style.invite}>
+                                <div className={style.input__field}>
+                                    <input type="email" onChange={(e)=>setOrgEmail(e.target.value)} value={orgEmail}/>
+                                </div>
+                                <div className={style.create_button} onClick={()=>inviteToOrg()}>
+                                    <p>Invite</p>
+                                </div>
+                            </div>
+
                             <div className={style.title}>
                                 <p>ORGANIZATIONS</p>
                             </div>
@@ -88,51 +173,63 @@ const Metadata = () => {
                             <div>
                                 {organizations ? (
                                     organizations.map((item) => {
-                                        if(item.name === orgname){
-                                            return <div><Item key={item.id} selected={true} item={item}/></div>
-                                        } else {
-                                            return <div onClick={()=>{
-                                                setOrgname(item.name);
-                                                localStorage.removeItem("proj");
-                                                setProjid(null)
-                                                localStorage.setItem("org", JSON.stringify(item));
-                                                getProjects();
-                                            }}><Item key={item.id} selected={false} item={item}/></div>
-                                        }
+                                            if (item.name === orgname) {
+                                                return <div><Item key={item.id} selected={true} item={item} callback={deleteOrganization}/></div>
+                                            } else {
+                                                return <div onClick={() => {
+                                                    setOrgname(item.name);
+                                                    localStorage.removeItem("proj");
+                                                    setProjid(null)
+                                                    localStorage.setItem("org", JSON.stringify(item));
+                                                    getProjects();
+                                                }}><Item key={item.id} selected={false} item={item} callback={deleteOrganization}/></div>
+                                            }
 
-                                    }
-                                )) : null}
+                                        }
+                                    )) : null}
                             </div>
                         </div>
                         <div className={[style.projs, style.items_container].join(" ")}>
+
+                            <div className={style.invite}>
+                                <div className={style.input__field}>
+                                    <input type="email" onChange={(e) => setProjEmail(e.target.value)} value={projEmail}/>
+                                </div>
+                                <div className={style.create_button} onClick={() => inviteToProject()}>
+                                    <p>Invite</p>
+                                </div>
+                            </div>
+
                             <div className={style.title}>
                                 <p>PROJECTS</p>
                             </div>
                             <div
                                 className={style.create__wrapper}
                                 onClick={() => {
-                                    if(localStorage.getItem("org") !== null) {
+                                    if (localStorage.getItem("org") !== null) {
                                         openModal(projects, setProjects, "Create Project")
                                     }
                                 }}
                             >
-                                <div className={[localStorage.getItem("org") !== null ? style.create_button : style.inactive].join(" ")}>
+                                <div
+                                    className={[localStorage.getItem("org") !== null ? style.create_button : style.inactive].join(" ")}>
                                     <p>Create Project</p>
                                 </div>
                             </div>
                             <div>
                                 {projects ? (
                                     projects.map((item) => {
-                                        if(item.id === projid){
-                                            return <div><Item key={item.id} selected={true} item={item}/></div>
+                                        if (item.id === projid) {
+                                            return <div><Item key={item.id} selected={true} item={item} callback={deleteProject}/></div>
                                         } else {
-                                            return <div onClick={()=>{
+                                            return <div onClick={() => {
                                                 setProjid(item.id);
-                                                localStorage.setItem("proj", JSON.stringify(item));}
-                                            }><Item key={item.id} selected={false} item={item}/></div>
+                                                localStorage.setItem("proj", JSON.stringify(item));
+                                            }
+                                            }><Item key={item.id} selected={false} item={item} callback={deleteProject}/></div>
                                         }
                                     })
-                                ):null}
+                                ) : null}
                             </div>
                         </div>
                     </div>

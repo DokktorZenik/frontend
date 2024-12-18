@@ -6,9 +6,13 @@ import CreateModal from "../../entities/create/createModal";
 const Filter = ({priorities, statuses, assignees, filter, setFilter}) => {
 
 
-    const setField = (fieldName, value) => {
-        console.log({...filter, [fieldName]: value})
-        setFilter({...filter, [fieldName]: value});
+    const setField = (fieldName, option) => {
+
+        setFilter({...filter,
+        [fieldName]: {
+            content: option
+        }});
+        console.log("GONNNA FILTER", filter)
     }
 
     const removeField = (fieldName) => {
@@ -22,40 +26,24 @@ const Filter = ({priorities, statuses, assignees, filter, setFilter}) => {
             : array.filter(elem => elem.content === fieldName)[0];
     }
 
-    const memoizedDisplayValues = useMemo(() => ({
-        priority: findField(priorities, filter["priority"]),
-        status: findField(statuses, filter["status"]),
-        assignee: findField(assignees, filter["assignee"]),
-    }), [filter, priorities, statuses, assignees]);
-
-    useEffect(() => {
-        setDisplayValues(memoizedDisplayValues);
-    }, [memoizedDisplayValues]);
-
-    const [displayValues, setDisplayValues] = useState({
-        priority: findField(priorities, filter["priority"]),
-        status: findField(statuses, filter["status"]),
-        assignee: findField(assignees, filter["assignee"]),
-    });
-
 
 
     return (
         <div className={styles.settings}>
             <div className={styles.settings__item}>
-                <Dropdown array={priorities} startValue={displayValues["priority"]} fieldName={"priority"}
+                <Dropdown array={priorities} startValue={filter.priority === undefined ? null : filter.priority} fieldName={"priority"}
                           callback={setField}
                 />
                 <div className={styles.settings__item_reset} onClick={() => removeField("priority")}><p>✕</p></div>
             </div>
             <div className={styles.settings__item}>
-                <Dropdown array={statuses} startValue={displayValues["status"]} fieldName={"status"}
+                <Dropdown array={statuses} startValue={filter.status === undefined ? null : filter.status} fieldName={"status"}
                           callback={setField}
                 />
                 <div className={styles.settings__item_reset} onClick={() => removeField("status")}><p>✕</p></div>
             </div>
             <div className={[styles.settings__item, styles.settings__item_null].join(" ")}>
-                <Dropdown array={assignees} startValue={displayValues["assignee"]} fieldName={"assignee"}
+                <Dropdown array={assignees} startValue={filter.assignee === undefined ? null : filter.assignee} fieldName={"assignee"}
                           callback={setField}
                 />
                 <div className={styles.settings__item_reset} onClick={() => removeField("assignee")}><p>✕</p></div>

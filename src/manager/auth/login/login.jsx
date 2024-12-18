@@ -3,12 +3,13 @@ import {useState} from "react";
 import axios from "axios";
 import {redirect, useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
+import {GATEWAY_ROUTE, USER_ROUTE} from "../../../urls"
 
 const Login = () => {
     const [formData,setFormData] = useState({});
     let navigate = useNavigate()
      function register() {
-         axios.post("http://localhost:8083/v1/auth/register",formData)
+         axios.post(`${GATEWAY_ROUTE}/auth/register`,formData)
          .then(res => {
              alert("You have successfully registered");
 
@@ -18,7 +19,7 @@ const Login = () => {
          })
     }
         function login() {
-             axios.post("http://localhost:8083/v1/auth/login",{
+             axios.post(`${GATEWAY_ROUTE}/auth/login`,{
                  username:formData.username,
                  password:formData.password
              })
@@ -30,7 +31,7 @@ const Login = () => {
                 navigate("/metadata")
             })
             .catch(err => {
-                return alert(err.response.data);
+                return alert(err);
             })
         }
     return (
@@ -60,10 +61,6 @@ const Login = () => {
                             <div className={style.buttons}>
                                 <div className={[style.button, style.button__register].join(" ")} onClick={()=>register()}>REGISTER</div>
                                 <div className={[style.button, style.button__login].join(" ")} onClick={()=>login()}>LOGIN</div>
-                            </div>
-                            <div className={style.oauth_buttons}>
-                                <div className={[style.button, style.button__google].join(" ")}>Login with Google</div>
-                                <div className={[style.button, style.button__facebook].join(" ")}>Login with Facebook</div>
                             </div>
                         </div>
                     </div>

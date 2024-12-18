@@ -1,6 +1,6 @@
 import style from "./item.module.css"
 
-const Item = ({item, selected}) => {
+const Item = ({item, selected, callback}) => {
     return (
         <div className={style.wrapper}>
             <div className={[style.container, selected ? style.selected : ''].join(" ")}>
@@ -8,7 +8,7 @@ const Item = ({item, selected}) => {
                     <p>{item.name}</p>
                 </div>
                 <div className={style.buttons}>
-                    <div className={style.buttons__delete}>DELETE</div>
+                    <div className={style.buttons__delete} onClick={()=>callback(item.name)}>DELETE</div>
                 </div>
             </div>
         </div>

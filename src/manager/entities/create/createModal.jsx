@@ -2,6 +2,7 @@ import style from "./createModal.module.css"
 import axios from "axios";
 import {jwtDecode} from "jwt-decode";
 import {useState} from "react";
+import {GATEWAY_ROUTE} from "../../../urls";
 
 const CreateModal = ({callback, title, closeModal, list, listSetter}) => {
 
@@ -10,7 +11,7 @@ const CreateModal = ({callback, title, closeModal, list, listSetter}) => {
 
     function create() {
         if(title === "Create Org"){
-            axios.post("http://localhost:8080/v1/organizations", {
+            axios.post(`${GATEWAY_ROUTE}/organizations`, {
                 ownerId: jwtDecode(localStorage.getItem("token")).userid,
                 title: input,
             }).then(res => {
@@ -22,7 +23,7 @@ const CreateModal = ({callback, title, closeModal, list, listSetter}) => {
 
         } else if (title === "Create Project") {
             let org = JSON.parse(localStorage.getItem("org"));
-            axios.post(`http://localhost:8080/v1/organizations/${org.name}/projects`, {
+            axios.post(`${GATEWAY_ROUTE}/organizations/${org.name}/projects`, {
                 ownerId: jwtDecode(localStorage.getItem("token")).userid,
                 title: input,
             }).then(res => {

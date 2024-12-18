@@ -7,6 +7,7 @@ import style from "./main-container.module.css";
 import CreateModal from "../../entities/create/createModal";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import {GATEWAY_ROUTE} from "../../../urls";
 
 const MainContainer = () => {
 
@@ -22,22 +23,20 @@ const MainContainer = () => {
     const [estimates, setEstimates] = useState([])
     const [tasks, setTasks] = useState([])
     const [currentTask, setCurrentTask] = useState()
-    const [users, setUsers] = useState()
+    const [users, setUsers] = useState([])
     const [callback, setCallback] = useState(() => () => console.log("Not a function"));
     const [isCreateModalActive, setIsCreateModalActive] = useState(false);
     const [title, setTitle] = useState("");
     const date = new Date()
 
     const taskTemplate = {
-
         assignee_id: JSON.parse(localStorage.getItem("userid")),
-        created_by: JSON.parse(localStorage.getItem("userid")),
         end_date: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
         estimate: null,
-        org_id: JSON.parse(localStorage.getItem("org")).id,
+        orgId: JSON.parse(localStorage.getItem("org")).id,
         priority: null,
         progress: 0,
-        project_id: JSON.parse(localStorage.getItem("proj")).id,
+        projectId: JSON.parse(localStorage.getItem("proj")).id,
         start_date: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
         status: null,
         timestamp: Date.now(),
@@ -47,8 +46,10 @@ const MainContainer = () => {
     function createPriority(name) {
         if (name !== null && name !== undefined) {
             let org = JSON.parse(localStorage.getItem("org"));
-            axios.post(`http://localhost:8080/v1/organizations/${org.name}/priorities`, {
+            let proj = JSON.parse(localStorage.getItem("proj"));
+            axios.post(`${GATEWAY_ROUTE}/organizations/${org.name}/priorities`, {
                 orgId: org.id,
+                project_id: proj.id,
                 title: name,
                 color: "\"border-color: rgb(70, 70, 70);\n" +
                     "background-color: rgb(34, 34, 34);\n" +
@@ -59,10 +60,25 @@ const MainContainer = () => {
         }
     }
 
+    function transformFilter() {
+        let resultFilter = [];
+        console.log("GOT", filter);
+        Object.keys(filter).forEach(key => {
+            console.log(`BOTTA PUSH ${key} WITH ${filter[key]}`);
+            resultFilter.push({
+                field: key,
+                action: "eq",
+                values: [filter[key].content.title],
+                dataType: "STRING",
+            });
+        })
+        return resultFilter;
+    }
+
     function createStatus(name) {
         if (name !== null && name !== undefined) {
             let org = JSON.parse(localStorage.getItem("org"));
-            axios.post(`http://localhost:8080/v1/organizations/${org.name}/statuses`, {
+            axios.post(`${GATEWAY_ROUTE}/organizations/${org.name}/statuses`, {
                 orgId: org.id,
                 title: name,
                 color: "\"border-color: rgb(70, 70, 70);\n" +
@@ -77,7 +93,7 @@ const MainContainer = () => {
     function createEstimate(name) {
         if (name !== null && name !== undefined) {
             let org = JSON.parse(localStorage.getItem("org"));
-            axios.post(`http://localhost:8080/v1/organizations/${org.name}/estimates`, {
+            axios.post(`${GATEWAY_ROUTE}/organizations/${org.name}/estimates`, {
                 orgId: org.id,
                 title: name,
                 color: "\"border-color: rgb(70, 70, 70);\n" +
@@ -92,66 +108,111 @@ const MainContainer = () => {
     function chooseCallback(title) {
         switch (title) {
             case "priority":
-                console.log("priority");
                 setCallback(() => (title) => createPriority(title));
                 break;
             case "status":
                 setCallback(() => (title) => createStatus(title));
-                console.log("status");
                 break;
             case "estimate":
                 setCallback(() => (title) => createEstimate(title));
-                console.log("estimate");
                 break;
         }
 
         setIsCreateModalActive(true)
     }
 
+    useEffect(()=>{
+        if(Object.keys(filter).length !== 0){
+            fetchTasks();
+        }
+    },[filter]);
+
+    const fetchTasks = () => {
+        let org = JSON.parse(localStorage.getItem("org"));
+        let proj = JSON.parse(localStorage.getItem("proj"));
+
+        axios.post(`${GATEWAY_ROUTE}/organizations/${org.name}/projects/${proj.name}/metric`,{
+            fields:[
+                "id",
+                "assignee_id",
+                "created_by",
+                "end_date",
+                "estimate",
+                "priority",
+                "progress",
+                "start_date",
+                "status",
+                "timestamp",
+                "title"
+            ],
+            filters: transformFilter()
+        })
+            .then(res => {
+                responseTransform(res.data, users);
+            })
+    }
+
     useEffect(() => {
         const fetchData = async () => {
-
+            await new Promise(r => setTimeout(r, 1000));
             let org = JSON.parse(localStorage.getItem("org"));
             let proj = JSON.parse(localStorage.getItem("proj"));
             if (!org || !proj) {
                 navigate("/metadata");
                 return;
             }
-            axios.get(`http://localhost:8080/v1/organizations/${org.name}/priorities`)
+            axios.get(`${GATEWAY_ROUTE}/organizations/${org.name}/priorities`)
                 .then((response) => {
                     setPriorities(response.data);
+                    console.log("PRIO",response.data);
                 }).catch((error) => {
                 console.log(error)
             })
 
-            axios.get(`http://localhost:8080/v1/organizations/${org.name}/statuses`)
+            axios.get(`${GATEWAY_ROUTE}/organizations/${org.name}/statuses`)
                 .then((response) => {
                     setStatuses(response.data);
                 }).catch((error) => {
                 console.log(error)
             })
 
-            axios.get(`http://localhost:8080/v1/organizations/${org.name}/estimates`)
+            axios.get(`${GATEWAY_ROUTE}/organizations/${org.name}/estimates`)
                 .then((response) => {
                     setEstimates(response.data);
                 }).catch((error) => {
                 console.log(error)
             })
-            const usersResponse = await axios.get(`http://localhost:8083/v1/users/${proj.id}`)
+            const usersResponse = await axios.get(`${GATEWAY_ROUTE}/users/${proj.id}`)
             const users = usersResponse.data._embedded.users;
-            setUsers(users);
+            setUsers(users.map(user=>{
+                return {
+                    id: user.id,
+                    content: {
+                        title: user.username,
+                        color: ""
+                }
+                }
+            }));
 
-            axios.get(`http://localhost:8082/v1/projects/${proj.id}/tasks`)
+            axios.post(`${GATEWAY_ROUTE}/organizations/${org.name}/projects/${proj.name}/metric`,{
+                fields:[
+                    "id",
+                    "assignee_id",
+                    "created_by",
+                    "end_date",
+                    "estimate",
+                    "priority",
+                    "progress",
+                    "start_date",
+                    "status",
+                    "timestamp",
+                    "title"
+                ],
+                filters:[]
+            })
                 .then((response) => {
-                    setTasks(response.data._embedded.tasks.map(task => {
-                        const creator = users.find((user) => user.id === task.created_by)
-                        const assignee = users.find((user) => user.id === task.assignee_id)
-                        return {
-                            ...task,
-                            creator: creator.username,
-                            assignee: assignee.username,
-                        }
-                    }));
+                    console.log("RESPONSE TRANSFORM", response);
+                    responseTransform(response.data, users);
                 })
         }
         fetchData()
@@ -159,72 +220,29 @@ const MainContainer = () => {
 
     }, [])
 
+    const responseTransform = (body, users) => {
 
 
-    // const priorities = [
-    //     {
-    //         content: "0-Low",
-    //         style: "border-color: rgb(53, 68, 117);\n" +
-    //             "    background-color: rgb(45, 60, 111);\n" +
-    //             "    color: rgb(136, 185, 254);"
-    //     },
-    //     {
-    //         content: "1-Medium",
-    //         style: "border-color: rgb(96, 84, 36);\n" +
-    //             "    background-color: rgb(82, 69, 17);\n" +
-    //             "    color: rgb(254, 222, 76);"
-    //     },
-    //     {
-    //         content: "2-High",
-    //         style: "border-color: rgb(46, 25, 12);\n" +
-    //             "    background-color: rgb(103, 55, 26);\n" +
-    //             "    color: rgb(240, 114, 44);"
-    //     },
-    //     {
-    //         content: "3-Critical",
-    //         style: "border-color: rgb(109, 63, 67);\n" +
-    //             "    background-color: rgb(97, 47, 51);\n" +
-    //             "    color: rgb(233, 89, 104);"
-    //     }
-    // ]
+        let transformed = body._embedded.tasks.map(task => {
+            let newTask = {}
+            task.fields.map(field => {
+                newTask[field.fieldName] = field.fieldValue;
 
-    // const statuses = [
-    //     {
-    //         content: "Backlog",
-    //         style: "border-color: rgb(70, 70, 70);\n" +
-    //             "    background-color: rgb(34, 34, 34);\n" +
-    //             "    color: rgb(211, 219, 76);"
-    //     },
-    //     {
-    //         content: "To do",
-    //         style: "border-color: rgb(114, 114, 114);\n" +
-    //             "    background-color: rgb(102, 102, 102);\n" +
-    //             "    color: rgb(190, 193, 193);"
-    //     },
-    //     {
-    //         content: "In Development",
-    //         style: "border-color: rgb(96, 84, 36);\n" +
-    //             "    background-color: rgb(82, 69, 17);\n" +
-    //             "    color: rgb(254, 222, 76);"
-    //     },
-    //     {
-    //         content: "Done",
-    //         style: "border-color: rgb(20, 100, 55);\n" +
-    //             "    background-color: rgb(0, 87, 38);\n" +
-    //             "    color: rgb(61, 240, 143);"
-    //     }
-    // ]
-    //
-    const assignees = [
-        {
-            content: "Artem",
-            style: ""
-        },
-        {
-            content: "Tozhe Artem",
-            style: ""
-        }
-    ]
+            })
+            console.log("newTask", newTask);
+            console.log("Users:", users);
+            const creator = users.find((user) => user.id === newTask.created_by)
+            console.log("creator:", creator)
+            const assignee = users.find((user) => user.id === newTask.assignee_id)
+            return {
+                ...newTask,
+                creator: creator.username,
+                assignee: assignee.username,
+            }
+        })
+        console.log(transformed);
+        setTasks(transformed)
+    }
 
 
     return (
@@ -247,14 +265,16 @@ const MainContainer = () => {
                             <p>Create Task</p>
                         </div>
                     </div>
-                    <Filter priorities={priorities} statuses={statuses} assignees={assignees} filter={filter}
+                    <Filter priorities={priorities} statuses={statuses} assignees={users} filter={filter}
                             setFilter={setFilter}/>
                 </div>
                 <div className={styles.tasks__place}>
                     {isModalOpen ?
                         <Modal task={currentTask} users={users} chooseCallback={chooseCallback} priorities={priorities}
                                statuses={statuses} estimates={estimates}
-                               close={() => setIsModalOpen(false)}/> : null}
+                               tasks={tasks}
+                               setTasks={setTasks}
+                               close={() => {setIsModalOpen(false);fetchTasks();}}/> : null}
                     {tasks ? tasks.map(task => {
                             return <TaskModel task={task}
                                               priority={priorities.find(priority => priority.content.title === task.priority).content}

@@ -27,6 +27,9 @@
     border: 2px solid rgb(60, 60, 60);
     border-radius: 15px;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 .choose {
     display: flex;
@@ -133,4 +136,24 @@
     font-weight: bold;
     margin-right: 10px;
     color: rgb(125, 142, 158);
+}
+
+.invite{
+    display: flex;
+    gap: 50px;
+}
+.input__field{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+}
+.input__field > input {
+    width: 100%;
+    height: 80%;
+    background-color: rgb(57, 57, 57);
+    font-size: 30px;
+    color: #d5d5d5;
+
 }
